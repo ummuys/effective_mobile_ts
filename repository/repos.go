@@ -107,7 +107,7 @@ func (db *dbPg) GetSubs(userID string) (*models.SubsDB, error) {
 			db.logger.Info().
 				Str("user_id", userID).
 				Msg("no subscriptions found")
-			return nil, nil
+			return nil, ErrUserDoesntExists
 		}
 		return nil, fmt.Errorf("can't make query: %w", err)
 	}

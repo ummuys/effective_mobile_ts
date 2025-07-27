@@ -1,8 +1,4 @@
 services:
-  nginx:
-    image: nginx:latest
-    ports:
-      - "80:80"
   app:
     build:
       context: ..

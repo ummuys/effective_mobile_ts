@@ -250,7 +250,7 @@ const docTemplate = `{
             "properties": {
                 "end_date": {
                     "type": "string",
-                    "example": "07-2025 or null (it will be infinity)"
+                    "example": "optional"
                 },
                 "price": {
                     "type": "integer",
@@ -275,7 +275,7 @@ const docTemplate = `{
             "properties": {
                 "end_date": {
                     "type": "string",
-                    "example": "07-2025 or 12-9999(infinity)"
+                    "example": "07-2025"
                 },
                 "price": {
                     "type": "integer",

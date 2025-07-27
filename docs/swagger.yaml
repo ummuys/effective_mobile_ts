@@ -12,7 +12,7 @@ definitions:
   models.SubsRequest:
     properties:
       end_date:
-        example: 07-2025 or null (it will be infinity)
+        example: optional
         type: string
       price:
         example: 299
@@ -30,7 +30,7 @@ definitions:
   models.SubsResponse:
     properties:
       end_date:
-        example: 07-2025 or 12-9999(infinity)
+        example: 07-2025
         type: string
       price:
         example: 299

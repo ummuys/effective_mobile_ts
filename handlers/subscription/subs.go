@@ -33,6 +33,7 @@ func NewSubsHandler(subsService service.SubsService, logger *zerolog.Logger) Sub
 // @Param request body models.SubsRequest true "Данные подписки"
 // @Success 200 {object} models.GoodResponse
 // @Failure 400 {object} models.ErrorResponse
+// @Failure 403 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
 // @Router /api/v1/create-subs [post]
 func (fh *subsHand) CreateSubs(g *gin.Context) {
@@ -48,8 +49,12 @@ func (fh *subsHand) CreateSubs(g *gin.Context) {
 	}
 
 	if err := fh.subsService.CreateSubs(&reqJSON); err != nil {
-		if errors.Is(err, repository.ErrDBUnavailable) {
-			g.AbortWithStatusJSON(http.StatusBadRequest, models.ErrorResponse{Message: "something with server, try again later"})
+		switch {
+		case errors.Is(err, repository.ErrDBUnavailable):
+			g.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrorResponse{Message: "something with server, try again later"})
+			return
+		case errors.Is(err, repository.ErrUserExists):
+			g.AbortWithStatusJSON(http.StatusConflict, models.ErrorResponse{Message: err.Error()})
 			return
 		}
 		fh.logger.Warn().
@@ -78,14 +83,19 @@ func (fh *subsHand) CreateSubs(g *gin.Context) {
 // @Param user_id path string true "ID пользователя"
 // @Success 200 {object} models.SubsResponse
 // @Failure 400 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
 // @Router /api/v1/get-subs/{user_id} [get]
 func (fh *subsHand) GetSubs(g *gin.Context) {
 	userID := g.Param("user_id")
 	resp, err := fh.subsService.GetSubs(userID)
 	if err != nil {
-		if errors.Is(err, repository.ErrDBUnavailable) {
-			g.AbortWithStatusJSON(http.StatusBadRequest, models.ErrorResponse{Message: "something with server, try again later"})
+		switch {
+		case errors.Is(err, repository.ErrDBUnavailable):
+			g.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrorResponse{Message: "something with server, try again later"})
+			return
+		case errors.Is(err, repository.ErrUserDoesntExists):
+			g.AbortWithStatusJSON(http.StatusNotFound, models.ErrorResponse{Message: err.Error()})
 			return
 		}
 		fh.logger.Warn().
@@ -113,14 +123,19 @@ func (fh *subsHand) GetSubs(g *gin.Context) {
 // @Param user_id path string true "ID пользователя"
 // @Success 200 {object} models.GoodResponse
 // @Failure 400 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
 // @Router /api/v1/delete-subs/{user_id} [delete]
 func (fh *subsHand) DeleteSubs(g *gin.Context) {
 	userID := g.Param("user_id")
 	err := fh.subsService.DeleteSubs(userID)
 	if err != nil {
-		if errors.Is(err, repository.ErrDBUnavailable) {
-			g.AbortWithStatusJSON(http.StatusBadRequest, models.ErrorResponse{Message: "something with server, try again later"})
+		switch {
+		case errors.Is(err, repository.ErrDBUnavailable):
+			g.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrorResponse{Message: "something with server, try again later"})
+			return
+		case errors.Is(err, repository.ErrUserDoesntExists):
+			g.AbortWithStatusJSON(http.StatusNotFound, models.ErrorResponse{Message: err.Error()})
 			return
 		}
 		fh.logger.Warn().
@@ -192,6 +207,7 @@ func (fh *subsHand) GetAllSubs(g *gin.Context) {
 // @Param request body models.SubsRequest true "Обновлённые данные подписки"
 // @Success 200 {array} models.SubsResponse
 // @Failure 400 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
 // @Router /api/v1/update-subs/{user_id} [put]
 func (fh *subsHand) UpdateSubs(g *gin.Context) {
@@ -207,8 +223,12 @@ func (fh *subsHand) UpdateSubs(g *gin.Context) {
 	}
 
 	if err := fh.subsService.UpdateSubs(&reqJSON); err != nil {
-		if errors.Is(err, repository.ErrDBUnavailable) {
-			g.AbortWithStatusJSON(http.StatusBadRequest, models.ErrorResponse{Message: "something with server, try again later"})
+		switch {
+		case errors.Is(err, repository.ErrDBUnavailable):
+			g.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrorResponse{Message: "something with server, try again later"})
+			return
+		case errors.Is(err, repository.ErrUserDoesntExists):
+			g.AbortWithStatusJSON(http.StatusNotFound, models.ErrorResponse{Message: err.Error()})
 			return
 		}
 		fh.logger.Warn().

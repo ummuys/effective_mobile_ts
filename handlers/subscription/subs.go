@@ -1,12 +1,14 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"github.com/ummuys/effective_mobile_ts/models"
+	"github.com/ummuys/effective_mobile_ts/repository"
 	service "github.com/ummuys/effective_mobile_ts/service/subscription"
 )
 
@@ -31,6 +33,7 @@ func NewSubsHandler(subsService service.SubsService, logger *zerolog.Logger) Sub
 // @Param request body models.CreateSubsRequest true "Данные подписки"
 // @Success 200 {object} models.GoodResponse
 // @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
 // @Router /api/v1/create-subs [post]
 func (fh *subsHand) CreateSubs(g *gin.Context) {
 	reqJSON := models.CreateSubsRequest{}
@@ -45,6 +48,10 @@ func (fh *subsHand) CreateSubs(g *gin.Context) {
 	}
 
 	if err := fh.subsService.CreateSubs(&reqJSON); err != nil {
+		if errors.Is(err, repository.ErrDBUnavailable) {
+			g.AbortWithStatusJSON(http.StatusBadRequest, models.ErrorResponse{Message: "something with server, try again later"})
+			return
+		}
 		fh.logger.Warn().
 			Str("client_ip", g.ClientIP()).
 			Str("method", "POST").
@@ -69,13 +76,18 @@ func (fh *subsHand) CreateSubs(g *gin.Context) {
 // @Tags subscriptions
 // @Produce json
 // @Param user_id path string true "ID пользователя"
-// @Success 200 {object} map[string]string
-// @Failure 400 {object} map[string]string
+// @Success 200 {object} models.GetSubsResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
 // @Router /api/v1/get-subs/{user_id} [get]
 func (fh *subsHand) GetSubs(g *gin.Context) {
 	userID := g.Param("user_id")
 	resp, err := fh.subsService.GetSubs(userID)
 	if err != nil {
+		if errors.Is(err, repository.ErrDBUnavailable) {
+			g.AbortWithStatusJSON(http.StatusBadRequest, models.ErrorResponse{Message: "something with server, try again later"})
+			return
+		}
 		fh.logger.Warn().
 			Str("client_ip", g.ClientIP()).
 			Str("method", "GET").
@@ -99,13 +111,18 @@ func (fh *subsHand) GetSubs(g *gin.Context) {
 // @Tags subscriptions
 // @Produce json
 // @Param user_id path string true "ID пользователя"
-// @Success 200 {object} map[string]string
-// @Failure 400 {object} map[string]string
+// @Success 200 {object} models.GoodResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
 // @Router /api/v1/delete-subs/{user_id} [delete]
 func (fh *subsHand) DeleteSubs(g *gin.Context) {
 	userID := g.Param("user_id")
 	err := fh.subsService.DeleteSubs(userID)
 	if err != nil {
+		if errors.Is(err, repository.ErrDBUnavailable) {
+			g.AbortWithStatusJSON(http.StatusBadRequest, models.ErrorResponse{Message: "something with server, try again later"})
+			return
+		}
 		fh.logger.Warn().
 			Str("client_ip", g.ClientIP()).
 			Str("method", "DELETE").
@@ -129,12 +146,17 @@ func (fh *subsHand) DeleteSubs(g *gin.Context) {
 // @Description Возвращает список всех подписок
 // @Tags subscriptions
 // @Produce json
-// @Success 200 {array} map[string]string
-// @Failure 400 {object} map[string]string
+// @Success 200 {array} models.GetSubsResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
 // @Router /api/v1/get-subs [get]
 func (fh *subsHand) GetAllSubs(g *gin.Context) {
 	allSubsResp, err := fh.subsService.GetAllSubs()
 	if err != nil {
+		if errors.Is(err, repository.ErrDBUnavailable) {
+			g.AbortWithStatusJSON(http.StatusBadRequest, models.ErrorResponse{Message: "something with server, try again later"})
+			return
+		}
 		fh.logger.Warn().
 			Str("client_ip", g.ClientIP()).
 			Str("method", "GET").
@@ -168,8 +190,9 @@ func (fh *subsHand) GetAllSubs(g *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body models.CreateSubsRequest true "Обновлённые данные подписки"
-// @Success 200 {object} map[string]string
-// @Failure 400 {object} map[string]string
+// @Success 200 {array} models.GetSubsResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
 // @Router /api/v1/update-subs/{user_id} [put]
 func (fh *subsHand) UpdateSubs(g *gin.Context) {
 	reqJSON := models.CreateSubsRequest{}
@@ -184,6 +207,10 @@ func (fh *subsHand) UpdateSubs(g *gin.Context) {
 	}
 
 	if err := fh.subsService.UpdateSubs(&reqJSON); err != nil {
+		if errors.Is(err, repository.ErrDBUnavailable) {
+			g.AbortWithStatusJSON(http.StatusBadRequest, models.ErrorResponse{Message: "something with server, try again later"})
+			return
+		}
 		fh.logger.Warn().
 			Str("client_ip", g.ClientIP()).
 			Str("method", "PUT").

@@ -16,10 +16,10 @@ func RunRouter(subsHandler handlers.SubsHandler) {
 	g.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	g.POST(CreateSubsWay, subsHandler.CreateSubs)   //    C
-	g.GET(GetSubsWay, subsHandler.GetSubs)          // 	R
+	g.GET(GetSubsWay, subsHandler.GetSubs)          // 	  R
 	g.PUT(UpdateSubsWay, subsHandler.UpdateSubs)    //    U
-	g.DELETE(DeleteSubsWay, subsHandler.DeleteSubs) // 	D
-	g.GET(GetAllSubsWay, subsHandler.GetAllSubs)    // 	L
+	g.DELETE(DeleteSubsWay, subsHandler.DeleteSubs) // 	  D
+	g.GET(GetAllSubsWay, subsHandler.GetAllSubs)    // 	  L
 
 	g.Run(":8082")
 }

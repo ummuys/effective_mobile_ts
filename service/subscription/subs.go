@@ -31,7 +31,7 @@ func (fs *subsServ) CreateSubs(subsJSON *models.CreateSubsRequest) error {
 		fs.logger.Error().
 			Str("error", err.Error()).
 			Msg("problem with database")
-		return fmt.Errorf("something with server, try again later")
+		return err
 	}
 
 	if err := validServiceName(subsJSON.ServiceName); err != nil {
@@ -74,7 +74,7 @@ func (fs *subsServ) CreateSubs(subsJSON *models.CreateSubsRequest) error {
 		fs.logger.Error().
 			Str("error", err.Error()).
 			Msg("problem with database")
-		return fmt.Errorf("something with server, try again later")
+		return err
 	}
 
 	return nil
@@ -90,7 +90,7 @@ func (fs *subsServ) GetSubs(userID string) (*models.GetSubsResponse, error) {
 		fs.logger.Error().
 			Str("error", err.Error()).
 			Msg("problem with database")
-		return nil, fmt.Errorf("something with server, try again later")
+		return nil, err
 	}
 
 	if !exists {
@@ -102,7 +102,7 @@ func (fs *subsServ) GetSubs(userID string) (*models.GetSubsResponse, error) {
 		fs.logger.Error().
 			Str("error", err.Error()).
 			Msg("problem with database")
-		return nil, fmt.Errorf("something with server, try again later")
+		return nil, err
 	}
 
 	startDateStr := ymdtoym(subsResp.StartDate)
@@ -128,7 +128,7 @@ func (fs *subsServ) DeleteSubs(userID string) error {
 		fs.logger.Error().
 			Str("error", err.Error()).
 			Msg("problem with database")
-		return fmt.Errorf("something with server, try again later")
+		return err
 	}
 
 	if !exists {
@@ -139,7 +139,7 @@ func (fs *subsServ) DeleteSubs(userID string) error {
 		fs.logger.Error().
 			Str("error", err.Error()).
 			Msg("problem with database")
-		return fmt.Errorf("something with server, try again later")
+		return err
 	}
 	return nil
 }
@@ -150,7 +150,7 @@ func (fs *subsServ) GetAllSubs() ([]models.GetSubsResponse, error) {
 		fs.logger.Error().
 			Str("error", err.Error()).
 			Msg("problem with database")
-		return nil, fmt.Errorf("something with server, try again later")
+		return nil, err
 	}
 
 	var allSubsResp []models.GetSubsResponse
@@ -181,7 +181,7 @@ func (fs *subsServ) UpdateSubs(subsJSON *models.CreateSubsRequest) error {
 		fs.logger.Error().
 			Str("error", err.Error()).
 			Msg("problem with database")
-		return fmt.Errorf("something with server, try again later")
+		return err
 	}
 
 	if err := validServiceName(subsJSON.ServiceName); err != nil {
@@ -224,7 +224,7 @@ func (fs *subsServ) UpdateSubs(subsJSON *models.CreateSubsRequest) error {
 		fs.logger.Error().
 			Str("error", err.Error()).
 			Msg("problem with database")
-		return fmt.Errorf("something with server, try again later")
+		return err
 	}
 
 	return nil

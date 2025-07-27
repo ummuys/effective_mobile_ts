@@ -45,8 +45,8 @@ func NewDatabase(logger *zerolog.Logger) (Database, error) {
 func (db *dbPg) CheckUserExists(userID string) (bool, error) {
 
 	if err := db.Conn.Ping(context.Background()); err != nil {
-		db.logger.Error().Msg("ping didn't get answer")
-		return false, err
+		db.logger.Error().Msg("ping didn't return answer: " + err.Error())
+		return false, ErrDBUnavailable
 	}
 
 	query := `
@@ -65,8 +65,8 @@ func (db *dbPg) CheckUserExists(userID string) (bool, error) {
 func (db *dbPg) CreateSubs(subsInfo models.Subs) error {
 
 	if err := db.Conn.Ping(context.Background()); err != nil {
-		db.logger.Error().Msg("ping didn't get answer")
-		return err
+		db.logger.Error().Msg("ping didn't return answer: " + err.Error())
+		return ErrDBUnavailable
 	}
 
 	query := `
@@ -90,8 +90,8 @@ func (db *dbPg) CreateSubs(subsInfo models.Subs) error {
 func (db *dbPg) GetSubs(userID string) (*models.GetSubs, error) {
 
 	if err := db.Conn.Ping(context.Background()); err != nil {
-		db.logger.Error().Msg("ping didn't get answer")
-		return nil, err
+		db.logger.Error().Msg("ping didn't return answer: " + err.Error())
+		return nil, ErrDBUnavailable
 	}
 
 	query := `
@@ -117,8 +117,8 @@ func (db *dbPg) GetSubs(userID string) (*models.GetSubs, error) {
 func (db *dbPg) DeleteSubs(userID string) error {
 
 	if err := db.Conn.Ping(context.Background()); err != nil {
-		db.logger.Error().Msg("ping didn't get answer")
-		return err
+		db.logger.Error().Msg("ping didn't return answer: " + err.Error())
+		return ErrDBUnavailable
 	}
 
 	query := `
@@ -137,10 +137,9 @@ func (db *dbPg) DeleteSubs(userID string) error {
 func (db *dbPg) GetAllSubs() ([]models.GetSubs, error) {
 
 	if err := db.Conn.Ping(context.Background()); err != nil {
-		db.logger.Error().Msg("ping didn't get answer")
-		return nil, err
+		db.logger.Error().Msg("ping didn't return answer: " + err.Error())
+		return nil, ErrDBUnavailable
 	}
-
 	query := `
 	select * from subscriptions.info
 	`
@@ -174,9 +173,10 @@ func (db *dbPg) GetAllSubs() ([]models.GetSubs, error) {
 }
 
 func (db *dbPg) UpdateSubs(subsInfo models.Subs) error {
+
 	if err := db.Conn.Ping(context.Background()); err != nil {
-		db.logger.Error().Msg("ping didn't get answer")
-		return err
+		db.logger.Error().Msg("ping didn't return answer: " + err.Error())
+		return ErrDBUnavailable
 	}
 
 	query := `

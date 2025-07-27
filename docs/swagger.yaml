@@ -1,0 +1,161 @@
+definitions:
+  models.CreateSubsRequest:
+    properties:
+      end_date:
+        type: string
+      price:
+        type: string
+      service_name:
+        type: string
+      start_date:
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.ErrorResponse:
+    properties:
+      msg:
+        type: string
+    type: object
+  models.GoodResponse:
+    properties:
+      msg:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/create-subs:
+    post:
+      consumes:
+      - application/json
+      description: Создаёт новую подписку по данным из тела запроса
+      parameters:
+      - description: Данные подписки
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateSubsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GoodResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Создать подписку
+      tags:
+      - subscriptions
+  /api/v1/delete-subs/{user_id}:
+    delete:
+      description: Удаляет подписку, связанную с указанным пользователем
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Удалить подписку по user_id
+      tags:
+      - subscriptions
+  /api/v1/get-subs:
+    get:
+      description: Возвращает список всех подписок
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              additionalProperties:
+                type: string
+              type: object
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить все подписки
+      tags:
+      - subscriptions
+  /api/v1/get-subs/{user_id}:
+    get:
+      description: Возвращает информацию о подписке по ID пользователя
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить подписку по user_id
+      tags:
+      - subscriptions
+  /api/v1/update-subs/{user_id}:
+    put:
+      consumes:
+      - application/json
+      description: Обновляет данные подписки по данным из тела запроса
+      parameters:
+      - description: Обновлённые данные подписки
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateSubsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Обновить подписку
+      tags:
+      - subscriptions
+swagger: "2.0"

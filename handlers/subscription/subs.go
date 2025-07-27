@@ -29,8 +29,8 @@ func NewSubsHandler(subsService service.SubsService, logger *zerolog.Logger) Sub
 // @Accept json
 // @Produce json
 // @Param request body models.CreateSubsRequest true "Данные подписки"
-// @Success 200 {object} map[string]string
-// @Failure 400 {object} map[string]string
+// @Success 200 {object} models.GoodResponse
+// @Failure 400 {object} models.ErrorResponse
 // @Router /api/v1/create-subs [post]
 func (fh *subsHand) CreateSubs(g *gin.Context) {
 	reqJSON := models.CreateSubsRequest{}
@@ -40,7 +40,7 @@ func (fh *subsHand) CreateSubs(g *gin.Context) {
 			Str("method", "POST").
 			Str("path", g.Request.URL.Path).
 			Msg("bad request")
-		g.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"msg": "request should bind json"})
+		g.AbortWithStatusJSON(http.StatusBadRequest, models.ErrorResponse{Message: err.Error()})
 		return
 	}
 
@@ -50,7 +50,7 @@ func (fh *subsHand) CreateSubs(g *gin.Context) {
 			Str("method", "POST").
 			Str("path", g.Request.URL.Path).
 			Msg(err.Error())
-		g.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
+		g.AbortWithStatusJSON(http.StatusBadRequest, models.ErrorResponse{Message: err.Error()})
 		return
 	}
 
@@ -60,7 +60,7 @@ func (fh *subsHand) CreateSubs(g *gin.Context) {
 		Str("path", g.Request.URL.Path).
 		Msg("follow created")
 
-	g.JSON(http.StatusOK, gin.H{"msg": "follow created"})
+	g.JSON(http.StatusOK, models.GoodResponse{Message: "follow created"})
 }
 
 // GetSubs godoc

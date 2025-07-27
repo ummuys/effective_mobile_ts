@@ -33,7 +33,7 @@ func NewSubsHandler(subsService service.SubsService, logger *zerolog.Logger) Sub
 // @Param request body models.SubsRequest true "Данные подписки"
 // @Success 200 {object} models.GoodResponse
 // @Failure 400 {object} models.ErrorResponse
-// @Failure 403 {object} models.ErrorResponse
+// @Failure 409 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
 // @Router /api/v1/create-subs [post]
 func (fh *subsHand) CreateSubs(g *gin.Context) {

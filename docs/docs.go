@@ -52,8 +52,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "409": {
+                        "description": "Conflict",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }

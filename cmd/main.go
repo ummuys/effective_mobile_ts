@@ -15,7 +15,7 @@ func main() {
 	logger := logger.InitLogger("../logs/")
 	logger.Info().Msg("Start the programm . . .")
 
-	err := godotenv.Load("../.env")
+	err := godotenv.Load(".env")
 	if err != nil {
 		logger.Err(err)
 		log.Fatal(err)

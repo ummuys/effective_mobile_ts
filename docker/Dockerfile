@@ -9,6 +9,8 @@ RUN go mod download
 
 COPY . .
 
+RUN rm -r docs/
+
 RUN swag init -g cmd/main.go
 
 RUN go build -o app ./cmd

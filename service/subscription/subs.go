@@ -94,7 +94,7 @@ func (fs *subsServ) GetSubs(userID string) (*models.SubsResponse, error) {
 	}
 
 	if !exists {
-		return nil, repository.ErrUserExists
+		return nil, repository.ErrUserDoesntExists
 	}
 
 	subsResp, err := fs.db.GetSubs(userID)

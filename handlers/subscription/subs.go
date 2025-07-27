@@ -30,13 +30,13 @@ func NewSubsHandler(subsService service.SubsService, logger *zerolog.Logger) Sub
 // @Tags subscriptions
 // @Accept json
 // @Produce json
-// @Param request body models.CreateSubsRequest true "Данные подписки"
+// @Param request body models.SubsRequest true "Данные подписки"
 // @Success 200 {object} models.GoodResponse
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
 // @Router /api/v1/create-subs [post]
 func (fh *subsHand) CreateSubs(g *gin.Context) {
-	reqJSON := models.CreateSubsRequest{}
+	reqJSON := models.SubsRequest{}
 	if err := g.ShouldBindJSON(&reqJSON); err != nil {
 		fh.logger.Warn().
 			Str("client_ip", g.ClientIP()).
@@ -76,7 +76,7 @@ func (fh *subsHand) CreateSubs(g *gin.Context) {
 // @Tags subscriptions
 // @Produce json
 // @Param user_id path string true "ID пользователя"
-// @Success 200 {object} models.GetSubsResponse
+// @Success 200 {object} models.SubsResponse
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
 // @Router /api/v1/get-subs/{user_id} [get]
@@ -146,7 +146,7 @@ func (fh *subsHand) DeleteSubs(g *gin.Context) {
 // @Description Возвращает список всех подписок
 // @Tags subscriptions
 // @Produce json
-// @Success 200 {array} models.GetSubsResponse
+// @Success 200 {array} models.SubsResponse
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
 // @Router /api/v1/get-subs [get]
@@ -189,13 +189,13 @@ func (fh *subsHand) GetAllSubs(g *gin.Context) {
 // @Tags subscriptions
 // @Accept json
 // @Produce json
-// @Param request body models.CreateSubsRequest true "Обновлённые данные подписки"
-// @Success 200 {array} models.GetSubsResponse
+// @Param request body models.SubsRequest true "Обновлённые данные подписки"
+// @Success 200 {array} models.SubsResponse
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
 // @Router /api/v1/update-subs/{user_id} [put]
 func (fh *subsHand) UpdateSubs(g *gin.Context) {
-	reqJSON := models.CreateSubsRequest{}
+	reqJSON := models.SubsRequest{}
 	if err := g.ShouldBindJSON(&reqJSON); err != nil {
 		fh.logger.Warn().
 			Str("client_ip", g.ClientIP()).

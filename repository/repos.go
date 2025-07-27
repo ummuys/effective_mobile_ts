@@ -87,7 +87,7 @@ func (db *dbPg) CreateSubs(subsInfo models.Subs) error {
 	return nil
 }
 
-func (db *dbPg) GetSubs(userID string) (*models.GetSubs, error) {
+func (db *dbPg) GetSubs(userID string) (*models.SubsDB, error) {
 
 	if err := db.Conn.Ping(context.Background()); err != nil {
 		db.logger.Error().Msg("ping didn't return answer: " + err.Error())
@@ -99,7 +99,7 @@ func (db *dbPg) GetSubs(userID string) (*models.GetSubs, error) {
 	where user_id = $1
 	`
 
-	subs := models.GetSubs{}
+	subs := models.SubsDB{}
 
 	err := db.Conn.QueryRow(context.Background(), query, userID).Scan(&subs.ServiceName, &subs.Price, &subs.UserID, &subs.StartDate, &subs.EndDate)
 	if err != nil {
@@ -134,7 +134,7 @@ func (db *dbPg) DeleteSubs(userID string) error {
 	return nil
 }
 
-func (db *dbPg) GetAllSubs() ([]models.GetSubs, error) {
+func (db *dbPg) GetAllSubs() ([]models.SubsDB, error) {
 
 	if err := db.Conn.Ping(context.Background()); err != nil {
 		db.logger.Error().Msg("ping didn't return answer: " + err.Error())
@@ -150,10 +150,10 @@ func (db *dbPg) GetAllSubs() ([]models.GetSubs, error) {
 	}
 	defer rows.Close()
 
-	var allSubs []models.GetSubs
+	var allSubs []models.SubsDB
 
 	for rows.Next() {
-		var subs models.GetSubs
+		var subs models.SubsDB
 		err := rows.Scan(&subs.ServiceName, &subs.Price, &subs.UserID, &subs.StartDate, &subs.EndDate)
 		if err != nil {
 			return nil, fmt.Errorf("can't fill a data: %w", err)

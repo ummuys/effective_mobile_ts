@@ -21,7 +21,7 @@ func NewSubsService(db repository.Database, logger *zerolog.Logger) SubsService 
 	}
 }
 
-func (fs *subsServ) CreateSubs(subsJSON *models.CreateSubsRequest) error {
+func (fs *subsServ) CreateSubs(subsJSON *models.SubsRequest) error {
 	if err := validUserID(subsJSON.UserID); err != nil {
 		return err
 	}
@@ -80,7 +80,7 @@ func (fs *subsServ) CreateSubs(subsJSON *models.CreateSubsRequest) error {
 	return nil
 }
 
-func (fs *subsServ) GetSubs(userID string) (*models.GetSubsResponse, error) {
+func (fs *subsServ) GetSubs(userID string) (*models.SubsResponse, error) {
 	if err := validUserID(userID); err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (fs *subsServ) GetSubs(userID string) (*models.GetSubsResponse, error) {
 	startDateStr := ymdtoym(subsResp.StartDate)
 	endDateStr := ymdtoym(subsResp.EndDate)
 
-	return &models.GetSubsResponse{
+	return &models.SubsResponse{
 		ServiceName: subsResp.ServiceName,
 		Price:       subsResp.Price,
 		UserID:      subsResp.UserID,
@@ -144,7 +144,7 @@ func (fs *subsServ) DeleteSubs(userID string) error {
 	return nil
 }
 
-func (fs *subsServ) GetAllSubs() ([]models.GetSubsResponse, error) {
+func (fs *subsServ) GetAllSubs() ([]models.SubsResponse, error) {
 	allSubs, err := fs.db.GetAllSubs()
 	if err != nil {
 		fs.logger.Error().
@@ -153,12 +153,12 @@ func (fs *subsServ) GetAllSubs() ([]models.GetSubsResponse, error) {
 		return nil, err
 	}
 
-	var allSubsResp []models.GetSubsResponse
+	var allSubsResp []models.SubsResponse
 	for _, elem := range allSubs {
 		startDateStr := ymdtoym(elem.StartDate)
 		endDateStr := ymdtoym(elem.EndDate)
 		allSubsResp = append(allSubsResp,
-			models.GetSubsResponse{
+			models.SubsResponse{
 				ServiceName: elem.ServiceName,
 				Price:       elem.Price,
 				UserID:      elem.UserID,
@@ -170,7 +170,7 @@ func (fs *subsServ) GetAllSubs() ([]models.GetSubsResponse, error) {
 	return allSubsResp, nil
 }
 
-func (fs *subsServ) UpdateSubs(subsJSON *models.CreateSubsRequest) error {
+func (fs *subsServ) UpdateSubs(subsJSON *models.SubsRequest) error {
 
 	if err := validUserID(subsJSON.UserID); err != nil {
 		return err

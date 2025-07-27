@@ -1,5 +1,15 @@
 definitions:
-  models.CreateSubsRequest:
+  models.ErrorResponse:
+    properties:
+      msg:
+        type: string
+    type: object
+  models.GoodResponse:
+    properties:
+      msg:
+        type: string
+    type: object
+  models.SubsRequest:
     properties:
       end_date:
         example: 07-2025 or null (it will be infinity)
@@ -17,12 +27,7 @@ definitions:
         example: 123e4567-e89b-12d3-a456-426614174000
         type: string
     type: object
-  models.ErrorResponse:
-    properties:
-      msg:
-        type: string
-    type: object
-  models.GetSubsResponse:
+  models.SubsResponse:
     properties:
       end_date:
         example: 07-2025 or 12-9999(infinity)
@@ -40,11 +45,6 @@ definitions:
         example: 123e4567-e89b-12d3-a456-426614174000
         type: string
     type: object
-  models.GoodResponse:
-    properties:
-      msg:
-        type: string
-    type: object
 info:
   contact: {}
 paths:
@@ -59,7 +59,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.CreateSubsRequest'
+          $ref: '#/definitions/models.SubsRequest'
       produces:
       - application/json
       responses:
@@ -115,7 +115,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.GetSubsResponse'
+              $ref: '#/definitions/models.SubsResponse'
             type: array
         "400":
           description: Bad Request
@@ -143,7 +143,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.GetSubsResponse'
+            $ref: '#/definitions/models.SubsResponse'
         "400":
           description: Bad Request
           schema:
@@ -166,7 +166,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.CreateSubsRequest'
+          $ref: '#/definitions/models.SubsRequest'
       produces:
       - application/json
       responses:
@@ -174,7 +174,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.GetSubsResponse'
+              $ref: '#/definitions/models.SubsResponse'
             type: array
         "400":
           description: Bad Request

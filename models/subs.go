@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-type CreateSubsRequest struct {
+type SubsRequest struct {
 	ServiceName string `json:"service_name" example:"Spotify"`
 	Price       int    `json:"price" example:"299"`
 	UserID      string `json:"user_id" example:"123e4567-e89b-12d3-a456-426614174000"`
@@ -18,7 +18,7 @@ type Subs struct {
 	EndDate     string
 }
 
-type GetSubs struct {
+type SubsDB struct {
 	ServiceName string
 	Price       int
 	UserID      string
@@ -26,7 +26,7 @@ type GetSubs struct {
 	EndDate     time.Time
 }
 
-type GetSubsResponse struct {
+type SubsResponse struct {
 	ServiceName string `json:"service_name" example:"Spotify"`
 	Price       int    `json:"price" example:"299"`
 	UserID      string `json:"user_id" example:"123e4567-e89b-12d3-a456-426614174000"`

@@ -35,7 +35,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateSubsRequest"
+                            "$ref": "#/definitions/models.SubsRequest"
                         }
                     }
                 ],
@@ -118,7 +118,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.GetSubsResponse"
+                                "$ref": "#/definitions/models.SubsResponse"
                             }
                         }
                     },
@@ -160,7 +160,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.GetSubsResponse"
+                            "$ref": "#/definitions/models.SubsResponse"
                         }
                     },
                     "400": {
@@ -198,7 +198,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateSubsRequest"
+                            "$ref": "#/definitions/models.SubsRequest"
                         }
                     }
                 ],
@@ -208,7 +208,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.GetSubsResponse"
+                                "$ref": "#/definitions/models.SubsResponse"
                             }
                         }
                     },
@@ -229,7 +229,23 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.CreateSubsRequest": {
+        "models.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.GoodResponse": {
+            "type": "object",
+            "properties": {
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SubsRequest": {
             "type": "object",
             "properties": {
                 "end_date": {
@@ -254,15 +270,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "msg": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.GetSubsResponse": {
+        "models.SubsResponse": {
             "type": "object",
             "properties": {
                 "end_date": {
@@ -284,14 +292,6 @@ const docTemplate = `{
                 "user_id": {
                     "type": "string",
                     "example": "123e4567-e89b-12d3-a456-426614174000"
-                }
-            }
-        },
-        "models.GoodResponse": {
-            "type": "object",
-            "properties": {
-                "msg": {
-                    "type": "string"
                 }
             }
         }

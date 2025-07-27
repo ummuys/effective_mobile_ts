@@ -2,7 +2,6 @@ package service
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -23,11 +22,6 @@ func NewSubsService(db repository.Database, logger *zerolog.Logger) SubsService 
 }
 
 func (fs *subsServ) CreateSubs(subsJSON *models.CreateSubsRequest) error {
-
-	if err := validServiceName(subsJSON.ServiceName); err != nil {
-		return err
-	}
-
 	if err := validUserID(subsJSON.UserID); err != nil {
 		return err
 	}
@@ -40,13 +34,17 @@ func (fs *subsServ) CreateSubs(subsJSON *models.CreateSubsRequest) error {
 		return fmt.Errorf("something with server, try again later")
 	}
 
-	if exists {
-		return repository.ErrUserExists
+	if err := validServiceName(subsJSON.ServiceName); err != nil {
+		return err
 	}
 
-	price, err := validPrice(subsJSON.Price)
+	err = validPrice(subsJSON.Price)
 	if err != nil {
 		return err
+	}
+
+	if exists {
+		return repository.ErrUserExists
 	}
 
 	startDate, err := ymtoymd(subsJSON.StartDate)
@@ -66,7 +64,7 @@ func (fs *subsServ) CreateSubs(subsJSON *models.CreateSubsRequest) error {
 
 	subs := models.Subs{
 		ServiceName: subsJSON.ServiceName,
-		Price:       price,
+		Price:       subsJSON.Price,
 		UserID:      subsJSON.UserID,
 		StartDate:   startDate,
 		EndDate:     endDate,
@@ -107,13 +105,12 @@ func (fs *subsServ) GetSubs(userID string) (*models.GetSubsResponse, error) {
 		return nil, fmt.Errorf("something with server, try again later")
 	}
 
-	priceStr := strconv.Itoa(subsResp.Price)
 	startDateStr := ymdtoym(subsResp.StartDate)
 	endDateStr := ymdtoym(subsResp.EndDate)
 
 	return &models.GetSubsResponse{
 		ServiceName: subsResp.ServiceName,
-		Price:       priceStr,
+		Price:       subsResp.Price,
 		UserID:      subsResp.UserID,
 		StartDate:   startDateStr,
 		EndDate:     endDateStr,
@@ -158,13 +155,12 @@ func (fs *subsServ) GetAllSubs() ([]models.GetSubsResponse, error) {
 
 	var allSubsResp []models.GetSubsResponse
 	for _, elem := range allSubs {
-		priceStr := strconv.Itoa(elem.Price)
 		startDateStr := ymdtoym(elem.StartDate)
 		endDateStr := ymdtoym(elem.EndDate)
 		allSubsResp = append(allSubsResp,
 			models.GetSubsResponse{
 				ServiceName: elem.ServiceName,
-				Price:       priceStr,
+				Price:       elem.Price,
 				UserID:      elem.UserID,
 				StartDate:   startDateStr,
 				EndDate:     endDateStr,
@@ -175,10 +171,6 @@ func (fs *subsServ) GetAllSubs() ([]models.GetSubsResponse, error) {
 }
 
 func (fs *subsServ) UpdateSubs(subsJSON *models.CreateSubsRequest) error {
-
-	if err := validServiceName(subsJSON.ServiceName); err != nil {
-		return err
-	}
 
 	if err := validUserID(subsJSON.UserID); err != nil {
 		return err
@@ -192,11 +184,15 @@ func (fs *subsServ) UpdateSubs(subsJSON *models.CreateSubsRequest) error {
 		return fmt.Errorf("something with server, try again later")
 	}
 
+	if err := validServiceName(subsJSON.ServiceName); err != nil {
+		return err
+	}
+
 	if !exists {
 		return repository.ErrUserDoesntExists
 	}
 
-	price, err := validPrice(subsJSON.Price)
+	err = validPrice(subsJSON.Price)
 	if err != nil {
 		return err
 	}
@@ -218,7 +214,7 @@ func (fs *subsServ) UpdateSubs(subsJSON *models.CreateSubsRequest) error {
 
 	subs := models.Subs{
 		ServiceName: subsJSON.ServiceName,
-		Price:       price,
+		Price:       subsJSON.Price,
 		UserID:      subsJSON.UserID,
 		StartDate:   startDate,
 		EndDate:     endDate,

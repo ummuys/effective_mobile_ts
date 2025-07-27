@@ -3,11 +3,11 @@ package models
 import "time"
 
 type CreateSubsRequest struct {
-	ServiceName string `json:"service_name"`
-	Price       string `json:"price"`
-	UserID      string `json:"user_id"`
-	StartDate   string `json:"start_date"`
-	EndDate     string `json:"end_date"`
+	ServiceName string `json:"service_name" example:"Spotify"`
+	Price       int    `json:"price" example:"299"`
+	UserID      string `json:"user_id" example:"123e4567-e89b-12d3-a456-426614174000"`
+	StartDate   string `json:"start_date" example:"07-2025"`
+	EndDate     string `json:"end_date" example:"07-2025 or null (it will be infinity)"`
 }
 
 type Subs struct {
@@ -27,11 +27,11 @@ type GetSubs struct {
 }
 
 type GetSubsResponse struct {
-	ServiceName string `json:"service_name"`
-	Price       string `json:"price"`
-	UserID      string `json:"user_id"`
-	StartDate   string `json:"start_date"`
-	EndDate     string `json:"end_date"`
+	ServiceName string `json:"service_name" example:"Spotify"`
+	Price       int    `json:"price" example:"299"`
+	UserID      string `json:"user_id" example:"123e4567-e89b-12d3-a456-426614174000"`
+	StartDate   string `json:"start_date" example:"07-2025"`
+	EndDate     string `json:"end_date" example:"07-2025 or 12-9999(infinity)"`
 }
 
 type ErrorResponse struct {

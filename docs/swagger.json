@@ -213,19 +213,24 @@
             "type": "object",
             "properties": {
                 "end_date": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "07-2025 or null (it will be infinity)"
                 },
                 "price": {
-                    "type": "string"
+                    "type": "integer",
+                    "example": 299
                 },
                 "service_name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Spotify"
                 },
                 "start_date": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "07-2025"
                 },
                 "user_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
                 }
             }
         },

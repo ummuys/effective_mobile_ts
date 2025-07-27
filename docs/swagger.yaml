@@ -2,14 +2,19 @@ definitions:
   models.CreateSubsRequest:
     properties:
       end_date:
+        example: 07-2025 or null (it will be infinity)
         type: string
       price:
-        type: string
+        example: 299
+        type: integer
       service_name:
+        example: Spotify
         type: string
       start_date:
+        example: 07-2025
         type: string
       user_id:
+        example: 123e4567-e89b-12d3-a456-426614174000
         type: string
     type: object
   models.ErrorResponse:

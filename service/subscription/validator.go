@@ -2,7 +2,6 @@ package service
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -39,19 +38,10 @@ func validUserID(id string) error {
 	return nil
 }
 
-func validPrice(price string) (int, error) {
-	if price == "" {
-		return -1, fmt.Errorf("bad price")
+func validPrice(price int) error {
+	if price < 0 {
+		return fmt.Errorf("bad price")
 	}
 
-	priceInt, err := strconv.Atoi(price)
-	if err != nil {
-		return -1, fmt.Errorf("bad price")
-	}
-
-	if priceInt < 0 {
-		return -1, fmt.Errorf("bad price")
-	}
-
-	return priceInt, nil
+	return nil
 }

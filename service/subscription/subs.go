@@ -1,0 +1,235 @@
+package service
+
+import (
+	"fmt"
+	"strconv"
+	"time"
+
+	"github.com/rs/zerolog"
+	"github.com/ummuys/effective_mobile_ts/models"
+	"github.com/ummuys/effective_mobile_ts/repository"
+)
+
+type subsServ struct {
+	db     repository.Database
+	logger *zerolog.Logger
+}
+
+func NewSubsService(db repository.Database, logger *zerolog.Logger) SubsService {
+	return &subsServ{
+		db:     db,
+		logger: logger,
+	}
+}
+
+func (fs *subsServ) CreateSubs(subsJSON *models.CreateSubsRequest) error {
+
+	if err := validServiceName(subsJSON.ServiceName); err != nil {
+		return err
+	}
+
+	if err := validUserID(subsJSON.UserID); err != nil {
+		return err
+	}
+
+	exists, err := fs.db.CheckUserExists(subsJSON.UserID)
+	if err != nil {
+		fs.logger.Error().
+			Str("error", err.Error()).
+			Msg("problem with database")
+		return fmt.Errorf("something with server, try again later")
+	}
+
+	if exists {
+		return repository.ErrUserExists
+	}
+
+	price, err := validPrice(subsJSON.Price)
+	if err != nil {
+		return err
+	}
+
+	startDate, err := ymtoymd(subsJSON.StartDate)
+	if err != nil {
+		return fmt.Errorf("bad start_date")
+	}
+
+	var endDate string
+	if subsJSON.EndDate == "" {
+		endDate = time.Date(9999, 12, 1, 0, 0, 0, 0, time.UTC).Format("2006-01-02")
+	} else {
+		endDate, err = ymtoymd(subsJSON.EndDate)
+		if err != nil {
+			return fmt.Errorf("bad end_date")
+		}
+	}
+
+	subs := models.Subs{
+		ServiceName: subsJSON.ServiceName,
+		Price:       price,
+		UserID:      subsJSON.UserID,
+		StartDate:   startDate,
+		EndDate:     endDate,
+	}
+
+	if err := fs.db.CreateSubs(subs); err != nil {
+		fs.logger.Error().
+			Str("error", err.Error()).
+			Msg("problem with database")
+		return fmt.Errorf("something with server, try again later")
+	}
+
+	return nil
+}
+
+func (fs *subsServ) GetSubs(userID string) (*models.GetSubsResponse, error) {
+	if err := validUserID(userID); err != nil {
+		return nil, err
+	}
+
+	exists, err := fs.db.CheckUserExists(userID)
+	if err != nil {
+		fs.logger.Error().
+			Str("error", err.Error()).
+			Msg("problem with database")
+		return nil, fmt.Errorf("something with server, try again later")
+	}
+
+	if !exists {
+		return nil, repository.ErrUserExists
+	}
+
+	subsResp, err := fs.db.GetSubs(userID)
+	if err != nil {
+		fs.logger.Error().
+			Str("error", err.Error()).
+			Msg("problem with database")
+		return nil, fmt.Errorf("something with server, try again later")
+	}
+
+	priceStr := strconv.Itoa(subsResp.Price)
+	startDateStr := ymdtoym(subsResp.StartDate)
+	endDateStr := ymdtoym(subsResp.EndDate)
+
+	return &models.GetSubsResponse{
+		ServiceName: subsResp.ServiceName,
+		Price:       priceStr,
+		UserID:      subsResp.UserID,
+		StartDate:   startDateStr,
+		EndDate:     endDateStr,
+	}, nil
+
+}
+
+func (fs *subsServ) DeleteSubs(userID string) error {
+	if err := validUserID(userID); err != nil {
+		return err
+	}
+
+	exists, err := fs.db.CheckUserExists(userID)
+	if err != nil {
+		fs.logger.Error().
+			Str("error", err.Error()).
+			Msg("problem with database")
+		return fmt.Errorf("something with server, try again later")
+	}
+
+	if !exists {
+		return repository.ErrUserDoesntExists
+	}
+
+	if err := fs.db.DeleteSubs(userID); err != nil {
+		fs.logger.Error().
+			Str("error", err.Error()).
+			Msg("problem with database")
+		return fmt.Errorf("something with server, try again later")
+	}
+	return nil
+}
+
+func (fs *subsServ) GetAllSubs() ([]models.GetSubsResponse, error) {
+	allSubs, err := fs.db.GetAllSubs()
+	if err != nil {
+		fs.logger.Error().
+			Str("error", err.Error()).
+			Msg("problem with database")
+		return nil, fmt.Errorf("something with server, try again later")
+	}
+
+	var allSubsResp []models.GetSubsResponse
+	for _, elem := range allSubs {
+		priceStr := strconv.Itoa(elem.Price)
+		startDateStr := ymdtoym(elem.StartDate)
+		endDateStr := ymdtoym(elem.EndDate)
+		allSubsResp = append(allSubsResp,
+			models.GetSubsResponse{
+				ServiceName: elem.ServiceName,
+				Price:       priceStr,
+				UserID:      elem.UserID,
+				StartDate:   startDateStr,
+				EndDate:     endDateStr,
+			},
+		)
+	}
+	return allSubsResp, nil
+}
+
+func (fs *subsServ) UpdateSubs(subsJSON *models.CreateSubsRequest) error {
+
+	if err := validServiceName(subsJSON.ServiceName); err != nil {
+		return err
+	}
+
+	if err := validUserID(subsJSON.UserID); err != nil {
+		return err
+	}
+
+	exists, err := fs.db.CheckUserExists(subsJSON.UserID)
+	if err != nil {
+		fs.logger.Error().
+			Str("error", err.Error()).
+			Msg("problem with database")
+		return fmt.Errorf("something with server, try again later")
+	}
+
+	if !exists {
+		return repository.ErrUserDoesntExists
+	}
+
+	price, err := validPrice(subsJSON.Price)
+	if err != nil {
+		return err
+	}
+
+	startDate, err := ymtoymd(subsJSON.StartDate)
+	if err != nil {
+		return fmt.Errorf("bad start_date")
+	}
+
+	var endDate string
+	if subsJSON.EndDate == "" {
+		endDate = time.Date(9999, 12, 1, 0, 0, 0, 0, time.UTC).Format("2006-01-02")
+	} else {
+		endDate, err = ymtoymd(subsJSON.EndDate)
+		if err != nil {
+			return fmt.Errorf("bad end_date")
+		}
+	}
+
+	subs := models.Subs{
+		ServiceName: subsJSON.ServiceName,
+		Price:       price,
+		UserID:      subsJSON.UserID,
+		StartDate:   startDate,
+		EndDate:     endDate,
+	}
+
+	if err := fs.db.UpdateSubs(subs); err != nil {
+		fs.logger.Error().
+			Str("error", err.Error()).
+			Msg("problem with database")
+		return fmt.Errorf("something with server, try again later")
+	}
+
+	return nil
+}

@@ -231,6 +231,34 @@ func (fs *subsServ) UpdateSubs(subsJSON *models.SubsRequest) error {
 }
 
 func (fs *subsServ) GetSumOfSubs(userID string, serviceName string, startDate string, endDate string) (int, error) {
+
+	if userID != "" {
+		if err := validUserID(userID); err != nil {
+			return -1, err
+		}
+	}
+
+	if serviceName != "" {
+		if err := validServiceName(serviceName); err != nil {
+			return -1, err
+		}
+	}
+
+	var err error
+	if startDate != "" {
+		startDate, err = ymtoymd(startDate)
+		if err != nil {
+			return -1, fmt.Errorf("bad start_date")
+		}
+	}
+
+	if endDate != "" {
+		endDate, err = ymtoymd(endDate)
+		if err != nil {
+			return -1, fmt.Errorf("bad end_date")
+		}
+	}
+
 	sum, err := fs.db.GetSumOfSubs(userID, serviceName, startDate, endDate)
 	if err != nil {
 		fs.logger.Error().

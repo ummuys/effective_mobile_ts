@@ -17,4 +17,4 @@ RUN go build -o bin/app ./cmd
 
 EXPOSE 8082
 
-CMD ["./bin/app"]
+CMD ["tail", "-f", "/dev/null"]

@@ -13,8 +13,8 @@ RUN rm -r docs/
 
 RUN swag init -g cmd/main.go
 
-RUN go build -o app ./cmd
+RUN go build -o bin/app ./cmd
 
 EXPOSE 8080
 
-CMD ["./app"]
+CMD ["./bin/app"]

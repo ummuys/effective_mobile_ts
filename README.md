@@ -11,7 +11,7 @@
 
 ```bash
 cd docker
-docker-compose up -d
+docker compose up -d (Обязательно сначала создайте все .env файлы!!!)
 ```
 
 Приложение будет доступно по адресу:

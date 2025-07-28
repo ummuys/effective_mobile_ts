@@ -15,6 +15,6 @@ RUN swag init -g cmd/main.go
 
 RUN go build -o bin/app ./cmd
 
-EXPOSE 8080
+EXPOSE 8082
 
 CMD ["./bin/app"]

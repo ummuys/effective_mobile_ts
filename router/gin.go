@@ -21,5 +21,7 @@ func RunRouter(subsHandler handlers.SubsHandler) {
 	g.DELETE(DeleteSubsWay, subsHandler.DeleteSubs) // 	  D
 	g.GET(GetAllSubsWay, subsHandler.GetAllSubs)    // 	  L
 
+	g.GET(GetSumOfSubs, subsHandler.GetSumOfSubs) // 	  S
+
 	g.Run("0.0.0.0:8082")
 }

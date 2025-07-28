@@ -2,7 +2,7 @@
 Create task example:
 curl -X POST http://localhost:8082/api/v1/create-subs   -H "Content-Type: application/json"   -d '{
     "service_name": "Netflix",
-    "price": "499",
+    "price": 499,
     "user_id": "60601fee-2bf1-4721-ae6f-7636e79a0cba",
     "start_date": "09-2022",
     "end_date": "12-2022"
@@ -26,3 +26,7 @@ curl -X PUT http://localhost:8082/api/v1/update-subs/60601fee-2bf1-4721-ae6f-763
 
 Delete task example:
 curl -X DELETE "http://localhost:8082/api/v1/delete-subs/60601fee-2bf1-4721-ae6f-7636e79a0cba"
+
+
+Get sum example: 
+curl "http://localhost:8082/api/v1/get-sum-subs"

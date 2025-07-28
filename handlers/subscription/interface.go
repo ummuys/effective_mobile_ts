@@ -7,5 +7,6 @@ type SubsHandler interface {
 	GetSubs(g *gin.Context)
 	DeleteSubs(g *gin.Context)
 	GetAllSubs(g *gin.Context)
+	GetSumOfSubs(g *gin.Context)
 	UpdateSubs(g *gin.Context)
 }

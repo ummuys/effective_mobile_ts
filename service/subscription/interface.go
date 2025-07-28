@@ -7,5 +7,6 @@ type SubsService interface {
 	GetSubs(userID string) (*models.SubsResponse, error)
 	DeleteSubs(userID string) error
 	GetAllSubs() ([]models.SubsResponse, error)
+	GetSumOfSubs(userID string, serviceName string, startDate string, endDate string) (int, error)
 	UpdateSubs(subsJSON *models.SubsRequest) error
 }

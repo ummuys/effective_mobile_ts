@@ -7,6 +7,7 @@ type Database interface {
 	GetSubs(userID string) (*models.SubsDB, error)
 	DeleteSubs(userID string) error
 	GetAllSubs() ([]models.SubsDB, error)
+	GetSumOfSubs(userID string, serviceName string, startDate string, endDate string) (int, error)
 	UpdateSubs(subsInfo models.Subs) error
 	CheckUserExists(userID string) (bool, error)
 }

@@ -183,6 +183,50 @@ func (db *dbPg) GetAllSubs() ([]models.SubsDB, error) {
 	return allSubs, nil
 }
 
+func (db *dbPg) GetSumOfSubs(userID string, serviceName string, startDate string, endDate string) (int, error) {
+	if err := db.Conn.Ping(context.Background()); err != nil {
+		db.logger.Error().Msg("ping didn't return answer: " + err.Error())
+		return -1, ErrDBUnavailable
+	}
+
+	query := `SELECT COALESCE(SUM(price),0) as sum FROM subscriptions.info WHERE 1=1`
+	args := []interface{}{}
+	argsC := 1
+
+	if userID != "" {
+		query += fmt.Sprintf(" AND user_id = $%d", argsC)
+		args = append(args, userID)
+		argsC++
+	}
+
+	if serviceName != "" {
+		query += fmt.Sprintf(" AND service_name = $%d", argsC)
+		args = append(args, serviceName)
+		argsC++
+	}
+
+	if startDate != "" {
+		query += fmt.Sprintf(" AND end_date >= $%d", argsC)
+		args = append(args, startDate)
+		argsC++
+	}
+
+	if endDate != "" {
+		query += fmt.Sprintf(" AND start_date <= $%d", argsC)
+		args = append(args, endDate)
+		argsC++
+	}
+
+	var sum int
+
+	err := db.Conn.QueryRow(context.Background(), query, args...).Scan(&sum)
+	if err != nil {
+		return -1, fmt.Errorf("can't make query: %w", err)
+	}
+
+	return sum, nil
+}
+
 func (db *dbPg) UpdateSubs(subsInfo models.Subs) error {
 
 	if err := db.Conn.Ping(context.Background()); err != nil {

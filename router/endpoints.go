@@ -17,4 +17,5 @@ const (
 	GetSubsWay    = "/api/v1/get-subs/:user_id"
 	DeleteSubsWay = "/api/v1/delete-subs/:user_id"
 	GetAllSubsWay = "/api/v1/get-subs"
+	GetSumOfSubs  = "/api/v1/get-sum-subs"
 )

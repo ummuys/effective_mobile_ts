@@ -184,12 +184,12 @@ func (fs *subsServ) UpdateSubs(subsJSON *models.SubsRequest) error {
 		return err
 	}
 
-	if err := validServiceName(subsJSON.ServiceName); err != nil {
-		return err
-	}
-
 	if !exists {
 		return repository.ErrUserDoesntExists
+	}
+
+	if err := validServiceName(subsJSON.ServiceName); err != nil {
+		return err
 	}
 
 	err = validPrice(subsJSON.Price)
@@ -228,4 +228,15 @@ func (fs *subsServ) UpdateSubs(subsJSON *models.SubsRequest) error {
 	}
 
 	return nil
+}
+
+func (fs *subsServ) GetSumOfSubs(userID string, serviceName string, startDate string, endDate string) (int, error) {
+	sum, err := fs.db.GetSumOfSubs(userID, serviceName, startDate, endDate)
+	if err != nil {
+		fs.logger.Error().
+			Str("error", err.Error()).
+			Msg("problem with database")
+		return -1, err
+	}
+	return sum, nil
 }

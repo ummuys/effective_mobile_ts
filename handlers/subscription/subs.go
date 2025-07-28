@@ -198,6 +198,48 @@ func (fh *subsHand) GetAllSubs(g *gin.Context) {
 	g.JSON(http.StatusOK, allSubsResp)
 }
 
+// GetSumOfSubs godoc
+// @Summary Получить сумму с подписок
+// @Description Возвращает сумму с указанных параметров у подписки
+// @Tags         subscriptions
+// @Accept       json
+// @Produce      json
+// @Param        user_id          query     string  false  "ID пользователя"
+// @Param        service_name     query     string  false  "Название сервиса"
+// @Param        start_date       query     string  false  "Дата начала периода"
+// @Param        end_date         query     string  false  "Дата конца периода"
+// @Success 200 {array} models.SubsResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router       /api/v1/get-sum-subs [get]
+func (fh *subsHand) GetSumOfSubs(g *gin.Context) {
+	userID := g.Query("user_id")
+	serviceName := g.Query("service_name")
+	startDate := g.Query("start_date")
+	endDate := g.Query("end_date")
+
+	sum, err := fh.subsService.GetSumOfSubs(userID, serviceName, startDate, endDate)
+	if err != nil {
+		fh.logger.Warn().
+			Str("client_ip", g.ClientIP()).
+			Str("method", "PUT").
+			Str("path", g.Request.URL.Path).
+			Msg(err.Error())
+		g.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
+		return
+	}
+
+	msg := fmt.Sprintf("Total sum: %d", sum)
+
+	fh.logger.Info().
+		Str("client_ip", g.ClientIP()).
+		Str("method", "PUT").
+		Str("path", g.Request.URL.Path).
+		Msg(msg)
+
+	g.JSON(http.StatusOK, gin.H{"msg": msg})
+}
+
 // UpdateSubs godoc
 // @Summary Обновить подписку
 // @Description Обновляет данные подписки по данным из тела запроса

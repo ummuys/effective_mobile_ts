@@ -22,7 +22,18 @@ func NewDatabase(logger *zerolog.Logger) (Database, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
-	conn, err := pgx.Connect(ctx, os.Getenv("DB_LINK"))
+	var (
+		conn *pgx.Conn
+		err  error
+	)
+
+	for i := 0; i < 10; i++ {
+		conn, err = pgx.Connect(ctx, os.Getenv("DB_LINK"))
+		if err == nil {
+			break
+		}
+		time.Sleep(time.Second)
+	}
 	if err != nil {
 		return nil, fmt.Errorf("can't connect to db: %w", err)
 	}

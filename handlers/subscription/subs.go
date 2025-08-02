@@ -52,10 +52,10 @@ func (fh *subsHand) CreateSubs(g *gin.Context) {
 		switch {
 		case errors.Is(err, repository.ErrDBUnavailable):
 			g.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrorResponse{Message: "something with server, try again later"})
-			return
 		case errors.Is(err, repository.ErrUserExists):
 			g.AbortWithStatusJSON(http.StatusConflict, models.ErrorResponse{Message: err.Error()})
-			return
+		default:
+			g.AbortWithStatusJSON(http.StatusBadRequest, models.ErrorResponse{Message: err.Error()})
 		}
 		fh.logger.Warn().
 			Str("client_ip", g.ClientIP()).
@@ -93,17 +93,16 @@ func (fh *subsHand) GetSubs(g *gin.Context) {
 		switch {
 		case errors.Is(err, repository.ErrDBUnavailable):
 			g.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrorResponse{Message: "something with server, try again later"})
-			return
 		case errors.Is(err, repository.ErrUserDoesntExists):
 			g.AbortWithStatusJSON(http.StatusNotFound, models.ErrorResponse{Message: err.Error()})
-			return
+		default:
+			g.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		}
 		fh.logger.Warn().
 			Str("client_ip", g.ClientIP()).
 			Str("method", "GET").
 			Str("path", g.Request.URL.Path).
 			Msg(err.Error())
-		g.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		return
 	}
 
@@ -133,17 +132,16 @@ func (fh *subsHand) DeleteSubs(g *gin.Context) {
 		switch {
 		case errors.Is(err, repository.ErrDBUnavailable):
 			g.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrorResponse{Message: "something with server, try again later"})
-			return
 		case errors.Is(err, repository.ErrUserDoesntExists):
 			g.AbortWithStatusJSON(http.StatusNotFound, models.ErrorResponse{Message: err.Error()})
-			return
+		default:
+			g.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		}
 		fh.logger.Warn().
 			Str("client_ip", g.ClientIP()).
 			Str("method", "DELETE").
 			Str("path", g.Request.URL.Path).
 			Msg(err.Error())
-		g.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		return
 	}
 	msg := fmt.Sprintf("subs with user_id = %s deleted", userID)
@@ -168,16 +166,18 @@ func (fh *subsHand) DeleteSubs(g *gin.Context) {
 func (fh *subsHand) GetAllSubs(g *gin.Context) {
 	allSubsResp, err := fh.subsService.GetAllSubs()
 	if err != nil {
-		if errors.Is(err, repository.ErrDBUnavailable) {
+		switch {
+		case errors.Is(err, repository.ErrDBUnavailable):
 			g.AbortWithStatusJSON(http.StatusBadRequest, models.ErrorResponse{Message: "something with server, try again later"})
 			return
+		default:
+			g.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		}
 		fh.logger.Warn().
 			Str("client_ip", g.ClientIP()).
 			Str("method", "GET").
 			Str("path", g.Request.URL.Path).
 			Msg(err.Error())
-		g.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		return
 	}
 	if allSubsResp == nil {
@@ -268,17 +268,16 @@ func (fh *subsHand) UpdateSubs(g *gin.Context) {
 		switch {
 		case errors.Is(err, repository.ErrDBUnavailable):
 			g.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrorResponse{Message: "something with server, try again later"})
-			return
 		case errors.Is(err, repository.ErrUserDoesntExists):
 			g.AbortWithStatusJSON(http.StatusNotFound, models.ErrorResponse{Message: err.Error()})
-			return
+		default:
+			g.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		}
 		fh.logger.Warn().
 			Str("client_ip", g.ClientIP()).
 			Str("method", "PUT").
 			Str("path", g.Request.URL.Path).
 			Msg(err.Error())
-		g.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		return
 	}
 

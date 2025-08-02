@@ -42,15 +42,20 @@ func NewDatabase(logger *zerolog.Logger) (Database, error) {
 		return nil, fmt.Errorf("db didn't pinged: %w", err)
 	}
 
-	if err = createAll(conn); err != nil {
-		return nil, err
-	}
-
 	return &dbPg{
 		Conn:   conn,
 		logger: logger,
 	}, nil
 
+}
+
+func (db *dbPg) Close() error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	if err := db.Conn.Close(ctx); err != nil {
+		return fmt.Errorf("can't close db conn: %v", err)
+	}
+	return nil
 }
 
 func (db *dbPg) CheckUserExists(userID string) (bool, error) {

@@ -1,4 +1,5 @@
 services:
+
   # APP  
   app:
     build:
@@ -27,7 +28,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       
 
-    # MIGRATE
+  # MIGRATE
   migrate:
     image: migrate/migrate
     container_name: db_migrate

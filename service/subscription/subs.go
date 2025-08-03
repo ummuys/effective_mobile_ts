@@ -81,6 +81,10 @@ func (fs *subsServ) CreateSubs(subsJSON *models.SubsRequest) error {
 }
 
 func (fs *subsServ) GetSubs(userID string) (*models.SubsResponse, error) {
+	fs.logger.Debug().
+		Str("user_id", userID).
+		Msg("called GetSubs")
+
 	if err := validUserID(userID); err != nil {
 		return nil, err
 	}

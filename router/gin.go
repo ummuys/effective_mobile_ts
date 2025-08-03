@@ -17,6 +17,7 @@ func CreateServer(subsHandler handlers.SubsHandler) *http.Server {
 
 	g := gin.New()
 	g.Use(gin.Recovery())
+	gin.SetMode(gin.ReleaseMode)
 
 	g.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 

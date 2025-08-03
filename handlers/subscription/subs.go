@@ -37,18 +37,29 @@ func NewSubsHandler(subsService service.SubsService, logger *zerolog.Logger) Sub
 // @Failure 500 {object} models.ErrorResponse
 // @Router /api/v1/create-subs [post]
 func (fh *subsHand) CreateSubs(g *gin.Context) {
+
+	fh.logger.Debug().
+		Msg("called Handler CreateSubs")
+
 	reqJSON := models.SubsRequest{}
 	if err := g.ShouldBindJSON(&reqJSON); err != nil {
 		fh.logger.Warn().
 			Str("client_ip", g.ClientIP()).
-			Str("method", "POST").
+			Str("method", g.Request.Method).
 			Str("path", g.Request.URL.Path).
+			Err(err).
 			Msg("bad request")
 		g.AbortWithStatusJSON(http.StatusBadRequest, models.ErrorResponse{Message: err.Error()})
 		return
 	}
 
 	if err := fh.subsService.CreateSubs(&reqJSON); err != nil {
+		fh.logger.Warn().
+			Str("client_ip", g.ClientIP()).
+			Str("method", g.Request.Method).
+			Str("path", g.Request.URL.Path).
+			Err(err).
+			Msg("")
 		switch {
 		case errors.Is(err, repository.ErrDBUnavailable):
 			g.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrorResponse{Message: "something with server, try again later"})
@@ -57,18 +68,12 @@ func (fh *subsHand) CreateSubs(g *gin.Context) {
 		default:
 			g.AbortWithStatusJSON(http.StatusBadRequest, models.ErrorResponse{Message: err.Error()})
 		}
-		fh.logger.Warn().
-			Str("client_ip", g.ClientIP()).
-			Str("method", "POST").
-			Str("path", g.Request.URL.Path).
-			Msg(err.Error())
-		g.AbortWithStatusJSON(http.StatusBadRequest, models.ErrorResponse{Message: err.Error()})
 		return
 	}
 
 	fh.logger.Info().
 		Str("client_ip", g.ClientIP()).
-		Str("method", "POST").
+		Str("method", g.Request.Method).
 		Str("path", g.Request.URL.Path).
 		Msg("follow created")
 
@@ -87,9 +92,19 @@ func (fh *subsHand) CreateSubs(g *gin.Context) {
 // @Failure 500 {object} models.ErrorResponse
 // @Router /api/v1/get-subs/{user_id} [get]
 func (fh *subsHand) GetSubs(g *gin.Context) {
+
+	fh.logger.Debug().
+		Msg("called Handler GetSubs")
+
 	userID := g.Param("user_id")
 	resp, err := fh.subsService.GetSubs(userID)
 	if err != nil {
+		fh.logger.Warn().
+			Str("client_ip", g.ClientIP()).
+			Str("method", g.Request.Method).
+			Str("path", g.Request.URL.Path).
+			Err(err).
+			Msg("")
 		switch {
 		case errors.Is(err, repository.ErrDBUnavailable):
 			g.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrorResponse{Message: "something with server, try again later"})
@@ -98,17 +113,12 @@ func (fh *subsHand) GetSubs(g *gin.Context) {
 		default:
 			g.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		}
-		fh.logger.Warn().
-			Str("client_ip", g.ClientIP()).
-			Str("method", "GET").
-			Str("path", g.Request.URL.Path).
-			Msg(err.Error())
 		return
 	}
 
 	fh.logger.Info().
 		Str("client_ip", g.ClientIP()).
-		Str("method", "DELETE").
+		Str("method", g.Request.Method).
 		Str("path", g.Request.URL.Path).
 		Msg("returned subs")
 	g.JSON(http.StatusOK, resp)
@@ -126,9 +136,20 @@ func (fh *subsHand) GetSubs(g *gin.Context) {
 // @Failure 500 {object} models.ErrorResponse
 // @Router /api/v1/delete-subs/{user_id} [delete]
 func (fh *subsHand) DeleteSubs(g *gin.Context) {
+
+	fh.logger.Debug().
+		Msg("called Handler DeleteSubs")
+
 	userID := g.Param("user_id")
 	err := fh.subsService.DeleteSubs(userID)
 	if err != nil {
+		fh.logger.Warn().
+			Str("client_ip", g.ClientIP()).
+			Str("method", g.Request.Method).
+			Str("path", g.Request.URL.Path).
+			Err(err).
+			Msg("")
+
 		switch {
 		case errors.Is(err, repository.ErrDBUnavailable):
 			g.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrorResponse{Message: "something with server, try again later"})
@@ -137,17 +158,12 @@ func (fh *subsHand) DeleteSubs(g *gin.Context) {
 		default:
 			g.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		}
-		fh.logger.Warn().
-			Str("client_ip", g.ClientIP()).
-			Str("method", "DELETE").
-			Str("path", g.Request.URL.Path).
-			Msg(err.Error())
 		return
 	}
 	msg := fmt.Sprintf("subs with user_id = %s deleted", userID)
 	fh.logger.Info().
 		Str("client_ip", g.ClientIP()).
-		Str("method", "DELETE").
+		Str("method", g.Request.Method).
 		Str("path", g.Request.URL.Path).
 		Msg(msg)
 
@@ -164,26 +180,31 @@ func (fh *subsHand) DeleteSubs(g *gin.Context) {
 // @Failure 500 {object} models.ErrorResponse
 // @Router /api/v1/get-subs [get]
 func (fh *subsHand) GetAllSubs(g *gin.Context) {
+
+	fh.logger.Debug().
+		Msg("called Handler GetAllSubs")
+
 	allSubsResp, err := fh.subsService.GetAllSubs()
 	if err != nil {
+		fh.logger.Warn().
+			Str("client_ip", g.ClientIP()).
+			Str("method", g.Request.Method).
+			Str("path", g.Request.URL.Path).
+			Err(err).
+			Msg("")
 		switch {
 		case errors.Is(err, repository.ErrDBUnavailable):
 			g.AbortWithStatusJSON(http.StatusBadRequest, models.ErrorResponse{Message: "something with server, try again later"})
-			return
 		default:
 			g.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		}
-		fh.logger.Warn().
-			Str("client_ip", g.ClientIP()).
-			Str("method", "GET").
-			Str("path", g.Request.URL.Path).
-			Msg(err.Error())
+
 		return
 	}
 	if allSubsResp == nil {
 		fh.logger.Info().
 			Str("client_ip", g.ClientIP()).
-			Str("method", "GET").
+			Str("method", g.Request.Method).
 			Str("path", g.Request.URL.Path).
 			Msg("no subscruption exists")
 		g.JSON(http.StatusOK, gin.H{"msg": "no subscription exists"})
@@ -192,7 +213,7 @@ func (fh *subsHand) GetAllSubs(g *gin.Context) {
 	msg := fmt.Sprintf("returned %d subs", len(allSubsResp))
 	fh.logger.Info().
 		Str("client_ip", g.ClientIP()).
-		Str("method", "GET").
+		Str("method", g.Request.Method).
 		Str("path", g.Request.URL.Path).
 		Msg(msg)
 	g.JSON(http.StatusOK, allSubsResp)
@@ -213,6 +234,10 @@ func (fh *subsHand) GetAllSubs(g *gin.Context) {
 // @Failure 500 {object} models.ErrorResponse
 // @Router       /api/v1/get-sum-subs [get]
 func (fh *subsHand) GetSumOfSubs(g *gin.Context) {
+
+	fh.logger.Debug().
+		Msg("called Handler GetSumOfSubs")
+
 	userID := g.Query("user_id")
 	serviceName := g.Query("service_name")
 	startDate := g.Query("start_date")
@@ -222,9 +247,10 @@ func (fh *subsHand) GetSumOfSubs(g *gin.Context) {
 	if err != nil {
 		fh.logger.Warn().
 			Str("client_ip", g.ClientIP()).
-			Str("method", "PUT").
+			Str("method", g.Request.Method).
 			Str("path", g.Request.URL.Path).
-			Msg(err.Error())
+			Err(err).
+			Msg("")
 		g.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		return
 	}
@@ -233,7 +259,7 @@ func (fh *subsHand) GetSumOfSubs(g *gin.Context) {
 
 	fh.logger.Info().
 		Str("client_ip", g.ClientIP()).
-		Str("method", "PUT").
+		Str("method", g.Request.Method).
 		Str("path", g.Request.URL.Path).
 		Msg(msg)
 
@@ -253,18 +279,29 @@ func (fh *subsHand) GetSumOfSubs(g *gin.Context) {
 // @Failure 500 {object} models.ErrorResponse
 // @Router /api/v1/update-subs/{user_id} [put]
 func (fh *subsHand) UpdateSubs(g *gin.Context) {
+
+	fh.logger.Debug().
+		Msg("called Handler UpdateSubs")
+
 	reqJSON := models.SubsRequest{}
 	if err := g.ShouldBindJSON(&reqJSON); err != nil {
 		fh.logger.Warn().
 			Str("client_ip", g.ClientIP()).
-			Str("method", "PUT").
+			Str("method", g.Request.Method).
 			Str("path", g.Request.URL.Path).
+			Err(err).
 			Msg("bad request")
 		g.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"msg": "request should bind json"})
 		return
 	}
 
 	if err := fh.subsService.UpdateSubs(&reqJSON); err != nil {
+		fh.logger.Warn().
+			Str("client_ip", g.ClientIP()).
+			Str("method", g.Request.Method).
+			Str("path", g.Request.URL.Path).
+			Err(err).
+			Msg("")
 		switch {
 		case errors.Is(err, repository.ErrDBUnavailable):
 			g.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrorResponse{Message: "something with server, try again later"})
@@ -273,17 +310,12 @@ func (fh *subsHand) UpdateSubs(g *gin.Context) {
 		default:
 			g.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		}
-		fh.logger.Warn().
-			Str("client_ip", g.ClientIP()).
-			Str("method", "PUT").
-			Str("path", g.Request.URL.Path).
-			Msg(err.Error())
 		return
 	}
 
 	fh.logger.Info().
 		Str("client_ip", g.ClientIP()).
-		Str("method", "PUT").
+		Str("method", g.Request.Method).
 		Str("path", g.Request.URL.Path).
 		Msg("follow updated")
 

@@ -19,16 +19,19 @@ import (
 
 func main() {
 
-	//---LOGGER
-	logger := logger.InitLogger("logs/")
-	logger.Info().Msg("starting the programm...")
-
 	//---ENV
 	err := godotenv.Load(".env")
 	if err != nil {
-		logger.Err(err)
 		log.Fatal(err)
 	}
+
+	//---LOGGER
+	logger, err := logger.InitLogger("logs/")
+	if err != nil {
+		log.Fatal(err)
+	}
+	logger.Info().Msg("starting the programm...")
+
 	logger.Info().Msg("env file is loaded")
 
 	//---DATABASES

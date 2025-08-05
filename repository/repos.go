@@ -42,10 +42,6 @@ func NewDatabase(logger *zerolog.Logger) (Database, error) {
 		return nil, fmt.Errorf("db didn't pinged: %w", err)
 	}
 
-	if err = createAll(conn); err != nil {
-		return nil, err
-	}
-
 	return &dbPg{
 		Conn:   conn,
 		logger: logger,
@@ -53,10 +49,21 @@ func NewDatabase(logger *zerolog.Logger) (Database, error) {
 
 }
 
+func (db *dbPg) Close() error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	if err := db.Conn.Close(ctx); err != nil {
+		return fmt.Errorf("can't close db conn: %v", err)
+	}
+	return nil
+}
+
 func (db *dbPg) CheckUserExists(userID string) (bool, error) {
 
 	if err := db.Conn.Ping(context.Background()); err != nil {
-		db.logger.Error().Msg("ping didn't return answer: " + err.Error())
+		db.logger.Error().
+			Err(err).
+			Msg("ping didn't return answer")
 		return false, ErrDBUnavailable
 	}
 
@@ -68,7 +75,10 @@ func (db *dbPg) CheckUserExists(userID string) (bool, error) {
 	`
 	var exists bool
 	if err := db.Conn.QueryRow(context.Background(), query, userID).Scan(&exists); err != nil {
-		return false, fmt.Errorf("can't make query: %w", err)
+		db.logger.Error().
+			Err(err).
+			Msg("can't make query")
+		return false, ErrDBUnavailable
 	}
 	return exists, nil
 }
@@ -76,7 +86,9 @@ func (db *dbPg) CheckUserExists(userID string) (bool, error) {
 func (db *dbPg) CreateSubs(subsInfo models.Subs) error {
 
 	if err := db.Conn.Ping(context.Background()); err != nil {
-		db.logger.Error().Msg("ping didn't return answer: " + err.Error())
+		db.logger.Error().
+			Err(err).
+			Msg("ping didn't return answer")
 		return ErrDBUnavailable
 	}
 
@@ -93,7 +105,10 @@ func (db *dbPg) CreateSubs(subsInfo models.Subs) error {
 		subsInfo.StartDate,
 		subsInfo.EndDate,
 	); err != nil {
-		return fmt.Errorf("can't make query: %w", err)
+		db.logger.Error().
+			Err(err).
+			Msg("can't make query")
+		return ErrDBUnavailable
 	}
 	return nil
 }
@@ -101,7 +116,9 @@ func (db *dbPg) CreateSubs(subsInfo models.Subs) error {
 func (db *dbPg) GetSubs(userID string) (*models.SubsDB, error) {
 
 	if err := db.Conn.Ping(context.Background()); err != nil {
-		db.logger.Error().Msg("ping didn't return answer: " + err.Error())
+		db.logger.Error().
+			Err(err).
+			Msg("ping didn't return answer")
 		return nil, ErrDBUnavailable
 	}
 
@@ -119,8 +136,12 @@ func (db *dbPg) GetSubs(userID string) (*models.SubsDB, error) {
 				Str("user_id", userID).
 				Msg("no subscriptions found")
 			return nil, ErrUserDoesntExists
+		} else {
+			db.logger.Error().
+				Err(err).
+				Msg("can't make query")
+			return nil, ErrDBUnavailable
 		}
-		return nil, fmt.Errorf("can't make query: %w", err)
 	}
 	return &subs, nil
 }
@@ -128,7 +149,9 @@ func (db *dbPg) GetSubs(userID string) (*models.SubsDB, error) {
 func (db *dbPg) DeleteSubs(userID string) error {
 
 	if err := db.Conn.Ping(context.Background()); err != nil {
-		db.logger.Error().Msg("ping didn't return answer: " + err.Error())
+		db.logger.Error().
+			Err(err).
+			Msg("ping didn't return answer")
 		return ErrDBUnavailable
 	}
 
@@ -139,7 +162,10 @@ func (db *dbPg) DeleteSubs(userID string) error {
 	_, err := db.Conn.Exec(context.Background(), query, userID)
 	if err != nil {
 		if !errors.Is(err, pgx.ErrNoRows) {
-			return fmt.Errorf("can't make query: %w", err)
+			db.logger.Error().
+				Err(err).
+				Msg("can't make query")
+			return ErrDBUnavailable
 		}
 	}
 	return nil
@@ -148,7 +174,9 @@ func (db *dbPg) DeleteSubs(userID string) error {
 func (db *dbPg) GetAllSubs() ([]models.SubsDB, error) {
 
 	if err := db.Conn.Ping(context.Background()); err != nil {
-		db.logger.Error().Msg("ping didn't return answer: " + err.Error())
+		db.logger.Error().
+			Err(err).
+			Msg("ping didn't return answer")
 		return nil, ErrDBUnavailable
 	}
 	query := `
@@ -157,7 +185,10 @@ func (db *dbPg) GetAllSubs() ([]models.SubsDB, error) {
 
 	rows, err := db.Conn.Query(context.Background(), query)
 	if err != nil {
-		return nil, fmt.Errorf("can't make query: %w", err)
+		db.logger.Error().
+			Err(err).
+			Msg("can't make query")
+		return nil, ErrDBUnavailable
 	}
 	defer rows.Close()
 
@@ -167,14 +198,19 @@ func (db *dbPg) GetAllSubs() ([]models.SubsDB, error) {
 		var subs models.SubsDB
 		err := rows.Scan(&subs.ServiceName, &subs.Price, &subs.UserID, &subs.StartDate, &subs.EndDate)
 		if err != nil {
-			return nil, fmt.Errorf("can't fill a data: %w", err)
+			db.logger.Error().
+				Err(err).
+				Msg("can't fill a data")
+			return nil, ErrDBUnavailable
 		}
 		allSubs = append(allSubs, subs)
 	}
 
-	//TODO: change this err
 	if rows.Err() != nil {
-		return nil, fmt.Errorf("some conflict: %w", err)
+		db.logger.Error().
+			Err(err).
+			Msg("rows occurred while reading")
+		return nil, ErrDBUnavailable
 	}
 
 	if len(allSubs) == 0 {
@@ -185,7 +221,9 @@ func (db *dbPg) GetAllSubs() ([]models.SubsDB, error) {
 
 func (db *dbPg) GetSumOfSubs(userID string, serviceName string, startDate string, endDate string) (int, error) {
 	if err := db.Conn.Ping(context.Background()); err != nil {
-		db.logger.Error().Msg("ping didn't return answer: " + err.Error())
+		db.logger.Error().
+			Err(err).
+			Msg("ping didn't return answer")
 		return -1, ErrDBUnavailable
 	}
 
@@ -221,7 +259,10 @@ func (db *dbPg) GetSumOfSubs(userID string, serviceName string, startDate string
 
 	err := db.Conn.QueryRow(context.Background(), query, args...).Scan(&sum)
 	if err != nil {
-		return -1, fmt.Errorf("can't make query: %w", err)
+		db.logger.Error().
+			Err(err).
+			Msg("can't make query")
+		return -1, ErrDBUnavailable
 	}
 
 	return sum, nil
@@ -230,7 +271,9 @@ func (db *dbPg) GetSumOfSubs(userID string, serviceName string, startDate string
 func (db *dbPg) UpdateSubs(subsInfo models.Subs) error {
 
 	if err := db.Conn.Ping(context.Background()); err != nil {
-		db.logger.Error().Msg("ping didn't return answer: " + err.Error())
+		db.logger.Error().
+			Err(err).
+			Msg("ping didn't return answer")
 		return ErrDBUnavailable
 	}
 
@@ -245,7 +288,10 @@ func (db *dbPg) UpdateSubs(subsInfo models.Subs) error {
 
 	_, err := db.Conn.Exec(context.Background(), query, subsInfo.ServiceName, subsInfo.Price, subsInfo.StartDate, subsInfo.EndDate, subsInfo.UserID)
 	if err != nil {
-		return fmt.Errorf("can't make query: %w", err)
+		db.logger.Error().
+			Err(err).
+			Msg("can't make query")
+		return ErrDBUnavailable
 	}
 
 	return nil

@@ -10,4 +10,5 @@ type Database interface {
 	GetSumOfSubs(userID string, serviceName string, startDate string, endDate string) (int, error)
 	UpdateSubs(subsInfo models.Subs) error
 	CheckUserExists(userID string) (bool, error)
+	Close() error
 }

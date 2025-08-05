@@ -1,25 +1,49 @@
 services:
+
+  # APP  
   app:
     build:
       context: ..
       dockerfile: docker/Dockerfile
     container_name: app
     ports:
-      - "8082:8082"
+      - ${APP_PORT}:8082
     depends_on:
       - database
+    environment:
+      - TZ=${TZ}
+
+  # DATABASE   
   database:
     image: postgres:13.21-alpine3.21
     container_name: database
+    restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - 5432:5432
+      - ${POSTGRES_PORT}:5432
     volumes:
       - postgres_data:/var/lib/postgresql/data
       
+
+  # MIGRATE
+  migrate:
+    image: migrate/migrate
+    container_name: db_migrate
+    environment:
+      DB_URL: ${DB_URL}
+    volumes:
+      - ../repository/migrations:/migrations
+    entrypoint: >
+      sh -c '
+        echo "Waiting for DB...";
+        sleep 5;
+        migrate -path /migrations -database "$DB_URL" up
+      '
+    depends_on:
+      - database
 
 volumes:
   postgres_data:
